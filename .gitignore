@@ -1,0 +1,23 @@
+# Arduino IDE
+build/
+*.ino. 
+*.cpp.o
+*.cpp.d
+*.elf
+*.hex
+*.map
+*.eep
+
+# VS Code
+.vscode/
+
+# PlatformIO
+.pio/
+.pioenvs/
+.piolibdeps/
+platformio.ini
+
+# Other
+.DS_Store
+*.user
+*.bak
