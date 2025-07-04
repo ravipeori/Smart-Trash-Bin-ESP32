@@ -1,4 +1,4 @@
-# Smart-Trash-Bin-ESP32
+![image](https://github.com/user-attachments/assets/a8dbae48-7e1b-487c-87fd-97c94fc0ea99)# Smart-Trash-Bin-ESP32
 An ESP32-based smart trash bin with ultrasonic sensor, buzzer, and servo control, communicating via MQTT.
 
 This project is a smart dustbin system that uses an *ESP32, **ultrasonic sensor, **servo motor, and **buzzer* to detect the trash level and automatically open the lid. It also publishes the fill level to an MQTT broker.
@@ -118,16 +118,13 @@ Topic: trash/level
 
 ---
 
-🖼️ Circuit Diagram
 
-
-
-
----
 
 📸 Demo
+![3d938fd0-ed67-49a3-b02f-ebc2c0cb065b](https://github.com/user-attachments/assets/faa54038-efd8-42b4-9190-26bc7ab78776)
+![3e533be3-14ef-4236-9039-e84df639c6b7](https://github.com/user-attachments/assets/d20c8df2-7f12-4e89-9c72-aac17afe6e02)
 
-
+![0c6c4b3b-4f61-41c0-83a6-466a4367243d](https://github.com/user-attachments/assets/c638f3d7-bad4-4f47-b8c8-523f898afef8)
 
 
 
