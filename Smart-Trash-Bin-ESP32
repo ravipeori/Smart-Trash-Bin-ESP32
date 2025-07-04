@@ -1,0 +1,108 @@
+#include <WiFi.h>
+#include <PubSubClient.h>
+#include <ESP32Servo.h>
+
+// Pin Definitions
+#define TRIG_PIN 12
+#define ECHO_PIN 13
+#define BUZZER_PIN 14
+#define SERVO_PIN 27
+
+// Wi-Fi Credentials
+const char* ssid = "YOUR_WIFI_SSID";
+const char* password = "YOUR_WIFI_PASSWORD";
+
+// MQTT Settings
+const char* mqtt_server = "broker.hivemq.com";
+const char* mqtt_topic = "trash/level";
+
+WiFiClient espClient;
+PubSubClient client(espClient);
+Servo lidServo;
+
+// Wi-Fi Setup
+void setup_wifi() {
+  delay(10);
+  Serial.println("Connecting to WiFi...");
+  WiFi.begin(ssid, password);
+  while (WiFi.status() != WL_CONNECTED) {
+    delay(500);
+    Serial.print(".");
+  }
+  Serial.println("\nConnected to WiFi");
+}
+
+// MQTT Reconnection
+void reconnect() {
+  while (!client.connected()) {
+    Serial.print("Connecting to MQTT...");
+    if (client.connect("ESP32Client")) {
+      Serial.println("connected");
+    } else {
+      Serial.print("failed, rc=");
+      Serial.print(client.state());
+      delay(2000);
+    }
+  }
+}
+
+void setup() {
+  Serial.begin(115200);
+
+  pinMode(TRIG_PIN, OUTPUT);
+  pinMode(ECHO_PIN, INPUT);
+  pinMode(BUZZER_PIN, OUTPUT);
+
+  // Servo Setup
+  lidServo.setPeriodHertz(50);  // 50 Hz for standard servo
+  lidServo.attach(SERVO_PIN);
+  lidServo.write(0);  // Start with lid closed
+
+  setup_wifi();
+  client.setServer(mqtt_server, 1883);
+}
+
+// Ultrasonic Distance Function
+float getDistanceCM() {
+  digitalWrite(TRIG_PIN, LOW);
+  delayMicroseconds(2);
+  digitalWrite(TRIG_PIN, HIGH);
+  delayMicroseconds(10);
+  digitalWrite(TRIG_PIN, LOW);
+
+  long duration = pulseIn(ECHO_PIN, HIGH);
+  float distance = duration * 0.034 / 2;
+  return distance;
+}
+
+void loop() {
+  if (!client.connected()) {
+    reconnect();
+  }
+  client.loop();
+
+  float distance = getDistanceCM();
+  float bin_height = 30.0;  // Adjust based on your actual bin height
+  float fill_level = bin_height - distance;
+  float percent_full = (fill_level / bin_height) * 100;
+
+  Serial.print("Fill Level: ");
+  Serial.print(percent_full);
+  Serial.println(" %");
+
+  // If bin is 80% or more full
+  if (percent_full >= 80) {
+    digitalWrite(BUZZER_PIN, HIGH);   // Turn on buzzer
+    lidServo.write(90);               // Open lid
+  } else {
+    digitalWrite(BUZZER_PIN, LOW);    // Turn off buzzer
+    lidServo.write(0);                // Close lid
+  }
+
+  // Publish to MQTT
+  char msg[50];
+  sprintf(msg, "%.1f", percent_full);
+  client.publish(mqtt_topic, msg);
+
+  delay(5000);  // Wait for 5 seconds
+}
