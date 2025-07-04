@@ -127,7 +127,7 @@ Topic: trash/level
 
 📸 Demo
 
-> Add a GIF, image, or YouTube link of your project in action here.
+
 
 
 
